@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سوق العروض</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            padding: 40px 0;
+        }
+
+        header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .main-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 25px 70px;
+            font-size: 1.6em;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            font-weight: bold;
+        }
+
+        .btn-add {
+            background: linear-gradient(45deg, #00b894, #00cec9);
+            color: white;
+        }
+
+        .btn-offers {
+            background: linear-gradient(45deg, #e17055, #fdcb6e);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-8px) scale(1.05);
+        }
+
+        .add-form, .offers-section {
+            display: none;
+            background: white;
+            padding: 40px;
+            border-radius: 25px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+            max-width: 700px;
+            margin: 0 auto;
+            animation: slideIn 0.6s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: #555;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 18px;
+            border: 3px solid #e0e0e0;
+            border-radius: 15px;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .submit-btn, .back-btn {
+            width: 100%;
+            padding: 20px;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.4em;
+            cursor: pointer;
+            margin-top: 20px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .submit-btn {
+            background: linear-gradient(45deg, #00b894, #00cec9);
+            color: white;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .back-btn {
+            background: #636e72;
+            color: white;
+        }
+
+        .back-btn:hover {
+            background: #2d3436;
+        }
+
+        .offers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .offer-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            animation: fadeIn 0.5s ease;
+            transition: transform 0.3s;
+        }
+
+        .offer-card:hover {
+            transform: translateY(-10px);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .offer-images {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2px;
+            height: 200px;
+        }
+
+        .offer-images img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .offer-info {
+            padding: 20px;
+        }
+
+        .offer-info h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #2d3436;
+        }
+
+        .social-link {
+            display: inline-block;
+            color: white;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            padding: 12px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+
+        .social-link:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .date {
+            color: #999;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        .loading {
+            text-align: center;
+            color: #666;
+            padding: 40px;
+            font-size: 1.2em;
+        }
+
+        .error {
+            background: #ff7675;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #666;
+            padding: 60px 20px;
+        }
+
+        .empty-state h3 {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+
+        .tip-box {
+            background: #e8f5e9;
+            border-right: 4px solid #4caf50;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            color: #2e7d32;
+        }
+
+        .tip-box a {
+            color: #1b5e20;
+            font-weight: bold;
+        }
+
+        .delete-btn {
+            background: #ff7675;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+
+        .delete-btn:hover {
+            background: #d63031;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛍️ سوق العروض</h1>
+            <p>منصة عروض للجميع</p>
+        </header>
+
+        <div class="main-buttons" id="mainButtons">
+            <button class="btn btn-add" onclick="showAdd()">➕ إضافة عرض</button>
+            <button class="btn btn-offers" onclick="showOffers()">🛒 العروض</button>
+        </div>
+
+        <div class="add-form" id="addForm">
+            <h2>إضافة عرض جديد</h2>
+            <form id="offerForm" onsubmit="submitOffer(event)">
+                <div class="form-group">
+                    <label>📦 اسم المنتج</label>
+                    <input type="text" id="productName" required placeholder="مثال: آيفون 14 برو ماكس">
+                </div>
+
+                <div class="form-group">
+                    <label>🔗 رابط التواصل الاجتماعي</label>
+                    <input type="url" id="socialLink" required placeholder="https://instagram.com/username">
+                </div>
+
+                <div class="form-group">
+                    <label>📸 روابط الصور (4 صور)</label>
+                    <input type="url" id="img1" required placeholder="رابط الصورة 1">
+                    <input type="url" id="img2" required placeholder="رابط الصورة 2">
+                    <input type="url" id="img3" required placeholder="رابط الصورة 3">
+                    <input type="url" id="img4" required placeholder="رابط الصورة 4">
+                </div>
+
+                <div class="tip-box">
+                    💡 <strong>كيف تحصل على روابط الصور؟</strong><br>
+                    1. اذهب إلى <a href="https://imgur.com/upload" target="_blank">Imgur</a><br>
+                    2. ارفع صورتك<br>
+                    3. انسخ الرابط المباشر (ينتهي بـ .jpg أو .png)
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">نشر العرض 🚀</button>
+                <button type="button" class="back-btn" onclick="showMain()">رجوع</button>
+            </form>
+        </div>
+
+        <div class="offers-section" id="offersSection">
+            <button class="back-btn" onclick="showMain()" style="margin-bottom: 20px;">رجوع</button>
+            <div id="loading" class="loading" style="display: none;">
+                ⏳ جاري تحميل العروض...
+            </div>
+            <div id="offersList" class="offers-grid"></div>
+        </div>
+    </div>
+
+    <script>
+        // ✅ رابط Render الخاص بك
+        const API_URL = 'https://web-u33w.onrender.com/api/offers';
+
+        function showAdd() {
+            document.getElementById('mainButtons').style.display = 'none';
+            document.getElementById('addForm').style.display = 'block';
+            document.getElementById('offersSection').style.display = 'none';
+        }
+
+        function showOffers() {
+            document.getElementById('mainButtons').style.display = 'none';
+            document.getElementById('addForm').style.display = 'none';
+            document.getElementById('offersSection').style.display = 'block';
+            loadOffers();
+        }
+
+        function showMain() {
+            document.getElementById('mainButtons').style.display = 'flex';
+            document.getElementById('addForm').style.display = 'none';
+            document.getElementById('offersSection').style.display = 'none';
+        }
+
+        async function submitOffer(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ جاري النشر...';
+
+            const offer = {
+                productName: document.getElementById('productName').value,
+                socialLink: document.getElementById('socialLink').value,
+                images: [
+                    document.getElementById('img1').value,
+                    document.getElementById('img2').value,
+                    document.getElementById('img3').value,
+                    document.getElementById('img4').value
+                ]
+            };
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(offer)
+                });
+
+                if (response.ok) {
+                    alert('✅ تم نشر العرض بنجاح!');
+                    document.getElementById('offerForm').reset();
+                    showMain();
+                } else {
+                    const error = await response.text();
+                    alert('❌ خطأ: ' + error);
+                }
+            } catch (error) {
+                alert('❌ خطأ في الاتصال: ' + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'نشر العرض 🚀';
+            }
+        }
+
+        async function loadOffers() {
+            const loading = document.getElementById('loading');
+            const list = document.getElementById('offersList');
+            
+            loading.style.display = 'block';
+            list.innerHTML = '';
+
+            try {
+                const response = await fetch(API_URL);
+                
+                if (!response.ok) {
+                    throw new Error('خطأ في الخادم');
+                }
+
+                const offers = await response.json();
+                loading.style.display = 'none';
+
+                if (offers.length === 0) {
+                    list.innerHTML = `
+                        <div class="empty-state" style="grid-column: 1/-1;">
+                            <h3>📭 لا توجد عروض حالياً</h3>
+                            <p>كن أول من يضيف عرض!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                list.innerHTML = offers.map(offer => `
+                    <div class="offer-card">
+                        <div class="offer-images">
+                            ${offer.images.map(img => `
+                                <img src="${img}" 
+                                     onerror="this.src='https://via.placeholder.com/150?text=No+Image'"
+                                     loading="lazy">
+                            `).join('')}
+                        </div>
+                        <div class="offer-info">
+                            <h3>${escapeHtml(offer.productName)}</h3>
+                            <a href="${offer.socialLink}" target="_blank" class="social-link">
+                                🔗 تواصل معي
+                            </a>
+                            <div class="date">
+                                📅 ${new Date(offer.date).toLocaleString('ar-SA')}
+                            </div>
+                            <button class="delete-btn" onclick="deleteOffer(${offer.id})">
+                                🗑️ حذف
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (error) {
+                loading.style.display = 'none';
+                list.innerHTML = `
+                    <div class="error" style="grid-column: 1/-1;">
+                        ❌ خطأ في تحميل العروض: ${error.message}<br>
+                        <small>تأكد من أن الخادم يعمل</small>
+                    </div>
+                `;
+            }
+        }
+
+        async function deleteOffer(id) {
+            if (!confirm('هل أنت متأكد من حذف هذا العرض؟')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    alert('✅ تم الحذف بنجاح');
+                    loadOffers();
+                } else {
+                    alert('❌ خطأ في الحذف');
+                }
+            } catch (error) {
+                alert('❌ خطأ في الاتصال');
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // تحديث تلقائي كل 30 ثانية
+        setInterval(() => {
+            if (document.getElementById('offersSection').style.display !== 'none') {
+                loadOffers();
+            }
+        }, 30000);
+    </script>
+</body>
+</html>
