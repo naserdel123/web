@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سوق العروض - تبوك والمملكة</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            padding: 40px 0;
+        }
+
+        header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .filters {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+
+        .filters h3 {
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 1.3em;
+        }
+
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: bold;
+        }
+
+        .filter-group select, .filter-group input {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+        }
+
+        .filter-group select:focus, .filter-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1.1em;
+        }
+
+        .search-box button {
+            padding: 15px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1em;
+        }
+
+        .main-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 25px 70px;
+            font-size: 1.6em;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            font-weight: bold;
+        }
+
+        .btn-add {
+            background: linear-gradient(45deg, #00b894, #00cec9);
+            color: white;
+        }
+
+        .btn-offers {
+            background: linear-gradient(45deg, #e17055, #fdcb6e);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-8px) scale(1.05);
+        }
+
+        .add-form, .offers-section {
+            display: none;
+            background: white;
+            padding: 40px;
+            border-radius: 25px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+            max-width: 900px;
+            margin: 0 auto;
+            animation: slideIn 0.6s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: #555;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 15px;
+            border: 3px solid #e0e0e0;
+            border-radius: 15px;
+            font-size: 1.1em;
+            font-family: inherit;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .price-input {
+            display: flex;
+            gap: 10px;
+        }
+
+        .price-input input {
+            flex: 1;
+        }
+
+        .price-input select {
+            width: 120px;
+        }
+
+        .images-upload {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .image-box {
+            border: 3px dashed #ccc;
+            border-radius: 15px;
+            height: 180px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            background: #f8f9fa;
+            transition: all 0.3s;
+        }
+
+        .image-box:hover {
+            border-color: #667eea;
+            background: #e8f4f8;
+        }
+
+        .image-box.has-image {
+            border: none;
+        }
+
+        .image-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-box input {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .image-box .placeholder {
+            text-align: center;
+            color: #999;
+        }
+
+        .image-box .placeholder span {
+            font-size: 3em;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .submit-btn, .back-btn {
+            width: 100%;
+            padding: 20px;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.4em;
+            cursor: pointer;
+            margin-top: 20px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .submit-btn {
+            background: linear-gradient(45deg, #00b894, #00cec9);
+            color: white;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .back-btn {
+            background: #636e72;
+            color: white;
+        }
+
+        .back-btn:hover {
+            background: #2d3436;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #00b894, #00cec9);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .offers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        .offer-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            animation: fadeIn 0.5s ease;
+            transition: transform 0.3s;
+            position: relative;
+        }
+
+        .offer-card:hover {
+            transform: translateY(-10px);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .offer-location {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            z-index: 10;
+        }
+
+        .offer-images {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2px;
+            height: 220px;
+        }
+
+        .offer-images img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .offer-info {
+            padding: 25px;
+        }
+
+        .offer-info h3 {
+            font-size: 1.6em;
+            margin-bottom: 10px;
+            color: #2d3436;
+        }
+
+        .offer-price {
+            font-size: 1.8em;
+            color: #00b894;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .offer-bio {
+            color: #636e72;
+            margin: 15px 0;
+            line-height: 1.6;
+            max-height: 80px;
+            overflow: hidden;
+        }
+
+        .social-link {
+            display: inline-block;
+            color: white;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            padding: 12px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+
+        .social-link:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .offer-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .date {
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        .delete-btn {
+            background: #ff7675;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+
+        .delete-btn:hover {
+            background: #d63031;
+            transform: scale(1.05);
+        }
+
+        .loading {
+            text-align: center;
+            color: #666;
+            padding: 40px;
+            font-size: 1.2em;
+        }
+
+        .error {
+            background: #ff7675;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #666;
+            padding: 60px 20px;
+            grid-column: 1/-1;
+        }
+
+        .empty-state h3 {
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+
+        .location-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: #f0f0f0;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            color: #555;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛍️ سوق العروض</h1>
+            <p>ابحث عن منتجاتك في مدينتك | أضف عرضك بسهولة</p>
+        </header>
+
+        <!-- فلاتر البحث -->
+        <div class="filters" id="filtersBox" style="display: none;">
+            <h3>🔍 بحث متقدم</h3>
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>الدولة</label>
+                    <select id="filterCountry" onchange="updateCities()">
+                        <option value="">الكل</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>المدينة</label>
+                    <select id="filterCity">
+                        <option value="">الكل</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>العملة</label>
+                    <select id="filterCurrency">
+                        <option value="">الكل</option>
+                        <option value="ر.س">ريال سعودي</option>
+                        <option value="د.إ">درهم إماراتي</option>
+                        <option value="د.ك">دينار كويتي</option>
+                        <option value="ر.ق">ريال قطري</option>
+                        <option value="د.ب">دينار بحريني</option>
+                        <option value="ر.ع">ريال عماني</option>
+                        <option value="ج.م">جنيه مصري</option>
+                        <option value="د.أ">دينار أردني</option>
+                        <option value="$">دولار أمريكي</option>
+                    </select>
+                </div>
+            </div>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="ابحث عن منتج... (مثال: بلايستيشن)">
+                <button onclick="applyFilters()">بحث</button>
+                <button onclick="resetFilters()" style="background: #999;">إعادة</button>
+            </div>
+        </div>
+
+        <div class="main-buttons" id="mainButtons">
+            <button class="btn btn-add" onclick="showAdd()">➕ إضافة عرض</button>
+            <button class="btn btn-offers" onclick="showOffers()">🛒 تصفح العروض</button>
+        </div>
+
+        <!-- نموذج الإضافة -->
+        <div class="add-form" id="addForm">
+            <h2>إضافة عرض جديد</h2>
+            <form id="offerForm" onsubmit="submitOffer(event)">
+                <div class="form-group">
+                    <label>📦 اسم المنتج</label>
+                    <input type="text" id="productName" required placeholder="مثال: بلايستيشن 5">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>🌍 الدولة</label>
+                        <select id="country" required onchange="updateAddCities()">
+                            <option value="">اختر الدولة</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>📍 المدينة</label>
+                        <select id="city" required>
+                            <option value="">اختر المدينة</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>💰 السعر</label>
+                    <div class="price-input">
+                        <input type="number" id="price" required placeholder="السعر" min="0" step="0.01">
+                        <select id="currency" required>
+                            <option value="ر.س">ر.س</option>
+                            <option value="د.إ">د.إ</option>
+                            <option value="د.ك">د.ك</option>
+                            <option value="ر.ق">ر.ق</option>
+                            <option value="د.ب">د.ب</option>
+                            <option value="ر.ع">ر.ع</option>
+                            <option value="ج.م">ج.م</option>
+                            <option value="د.أ">د.أ</option>
+                            <option value="$">$</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>📝 نبذة عن المنتج / السيرة الذاتية</label>
+                    <textarea id="bio" placeholder="اكتب وصف المنتج أو نبذة عنك..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>🔗 رابط التواصل الاجتماعي</label>
+                    <input type="url" id="socialLink" required placeholder="رابط انستقرام، تويتر، سناب...">
+                </div>
+
+                <div class="form-group">
+                    <label>📸 صور المنتج (4 صور)</label>
+                    <div class="images-upload">
+                        <div class="image-box" id="box0" onclick="document.getElementById('file0').click()">
+                            <div class="placeholder">
+                                <span>📷</span>
+                                <div>اضغط لإضافة صورة</div>
+                            </div>
+                            <input type="file" id="file0" accept="image/*" onchange="previewImage(this, 0)" hidden>
+                        </div>
+                        <div class="image-box" id="box1" onclick="document.getElementById('file1').click()">
+                            <div class="placeholder">
+                                <span>📷</span>
+                                <div>اضغط لإضافة صورة</div>
+                            </div>
+                            <input type="file" id="file1" accept="image/*" onchange="previewImage(this, 1)" hidden>
+                        </div>
+                        <div class="image-box" id="box2" onclick="document.getElementById('file2').click()">
+                            <div class="placeholder">
+                                <span>📷</span>
+                                <div>اضغط لإضافة صورة</div>
+                            </div>
+                            <input type="file" id="file2" accept="image/*" onchange="previewImage(this, 2)" hidden>
+                        </div>
+                        <div class="image-box" id="box3" onclick="document.getElementById('file3').click()">
+                            <div class="placeholder">
+                                <span>📷</span>
+                                <div>اضغط لإضافة صورة</div>
+                            </div>
+                            <input type="file" id="file3" accept="image/*" onchange="previewImage(this, 3)" hidden>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">نشر العرض 🚀</button>
+                <button type="button" class="back-btn" onclick="showMain()">رجوع</button>
+            </form>
+        </div>
+
+        <!-- قسم العروض -->
+        <div class="offers-section" id="offersSection">
+            <button class="back-btn" onclick="showMain()" style="margin-bottom: 20px;">رجوع</button>
+            <div id="loading" class="loading" style="display: none;">⏳ جاري التحميل...</div>
+            <div id="offersList" class="offers-grid"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/api/offers';
+        const LOCATIONS_URL = '/api/locations';
+        let locations = {};
+        let allOffers = [];
+        let imageFiles = [null, null, null, null];
+
+        // تحميل الدول والمدن
+        async function loadLocations() {
+            try {
+                const response = await fetch(LOCATIONS_URL);
+                locations = await response.json();
+                
+                // تعبئة فلتر الدول
+                const countrySelect = document.getElementById('filterCountry');
+                const addCountrySelect = document.getElementById('country');
+                
+                for (const country in locations) {
+                    countrySelect.innerHTML += `<option value="${country}">${country}</option>`;
+                    addCountrySelect.innerHTML += `<option value="${country}">${country}</option>`;
+                }
+            } catch (error) {
+                console.error('خطأ في تحميل المواقع:', error);
+            }
+        }
+
+        function updateCities() 
