@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>العروض</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .filters {
+            background: rgba(255,255,255,0.95);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .filter-group label {
+            font-size: 0.9em;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        .filter-group select, .filter-group input {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+        }
+        .offers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .offer-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            animation: fadeIn 0.5s ease;
+            position: relative;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .offer-location {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            z-index: 10;
+        }
+        .offer-images {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2px;
+            height: 180px;
+        }
+        .offer-images img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .offer-info {
+            padding: 20px;
+        }
+        .offer-info h3 {
+            font-size: 1.3em;
+            margin-bottom: 8px;
+        }
+        .offer-price {
+            font-size: 1.5em;
+            color: #00b894;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .offer-bio {
+            color: #666;
+            font-size: 0.9em;
+            margin: 10px 0;
+            max-height: 60px;
+            overflow: hidden;
+        }
+        .social-link {
+            display: inline-block;
+            color: white;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            padding: 10px 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.9em;
+        }
+        .loading {
+            text-align: center;
+            color: white;
+            padding: 50px;
+        }
+        .empty-state {
+            text-align: center;
+            color: white;
+            padding: 60px;
+        }
+        .delete-btn {
+            background: #ff7675;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 0.85em;
+        }
+    </style>
+</head>
+<body>
+    <div class="filters">
+        <div class="filter-row">
+            <div class="filter-group">
+                <label>الدولة</label>
+                <select id="filterCountry" onchange="updateCities()">
+                    <option value="">الكل</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>المدينة</label>
+                <select id="filterCity">
+                    <option value="">الكل</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>العملة</label>
+                <select id="filterCurrency">
+                    <option value="">الكل</option>
+                    <option value="ر.س">ر.س</option>
+                    <option value="د.إ">د.إ</option>
+                    <option value="د.ك">د.ك</option>
+                    <option value="ر.ق">ر.ق</option>
+                    <option value="د.ب">د.ب</option>
+                    <option value="ر.ع">ر.ع</option>
+                    <option value="ج.م">ج.م</option>
+                    <option value="د.أ">د.أ</option>
+                    <option value="$">$</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>بحث</label>
+                <input type="text" id="searchInput" placeholder="ابحث..." onkeyup="applyFilters()">
+            </div>
+        </div>
+    </div>
+
+    <div id="offersList">
+        <div class="loading">⏳ جاري التحميل...</div>
+    </div>
+
+    <script>
+        const API_URL = 'https://web-u33w.onrender.com/api/offers';
+        const LOCATIONS_URL = 'https://web-u33w.onrender.com/api/locations';
+        let locations = {};
+        let allOffers = [];
+
+        async function init() {
+            await loadLocations();
+            await loadOffers();
+        }
+
+        async function loadLocations() {
+            try {
+                const response = await fetch(LOCATIONS_URL);
+                locations = await response.json();
+                const countrySelect = document.getElementById('filterCountry');
+                for (const country in locations) {
+                    countrySelect.innerHTML += `<option value="${country}">${country}</option>`;
+                }
+            } catch (error) {
+                console.error('خطأ:', error);
+            }
+        }
+
+        function updateCities() {
+            const country = document.getElementById('filterCountry').value;
+            const citySelect = document.getElementById('filterCity');
+            citySelect.innerHTML = '<option value="">الكل</option>';
+            if (country && locations[country]) {
+                locations[country].forEach(city => {
+                    citySelect.innerHTML += `<option value="${city}">${city}</option>`;
+                });
+            }
+            applyFilters();
+        }
+
+        async function loadOffers() {
+            try {
+                const response = await fetch(API_URL);
+                allOffers = await response.json();
+                applyFilters();
+            } catch (error) {
+                document.getElementById('offersList').innerHTML = '<div class="loading">خطأ في التحميل</div>';
+            }
+        }
+
+        function applyFilters() {
+            const country = document.getElementById('filterCountry').value;
+            const city = document.getElementById('filterCity').value;
+            const currency = document.getElementById('filterCurrency').value;
+            const search = document.getElementById('searchInput').value.toLowerCase();
+
+            let filtered = allOffers;
+            if (country) filtered = filtered.filter(o => o.country === country);
+            if (city) filtered = filtered.filter(o => o.city === city);
+            if (currency) filtered = filtered.filter(o => o.currency === currency);
+            if (search) filtered = filtered.filter(o => 
+                o.productName.toLowerCase().includes(search) ||
+                (o.bio && o.bio.toLowerCase().includes(search))
+            );
+
+            displayOffers(filtered);
+        }
+
+        function displayOffers(offers) {
+            const list = document.getElementById('offersList');
+            if (offers.length === 0) {
+                list.innerHTML = '<div class="empty-state"><h3>📭 لا توجد عروض</h3></div>';
+                return;
+            }
+
+            list.innerHTML = `<div class="offers-grid">
+                ${offers.map(offer => `
+                    <div class="offer-card">
+                        <div class="offer-location">📍 ${offer.city}</div>
+                        <div class="offer-images">
+                            ${offer.images.map(img => `
+                                <img src="${img}" onerror="this.style.display='none'">
+                            `).join('')}
+                        </div>
+                        <div class="offer-info">
+                            <h3>${offer.productName}</h3>
+                            <div class="offer-price">${offer.price} ${offer.currency}</div>
+                            ${offer.bio ? `<div class="offer-bio">${offer.bio}</div>` : ''}
+                            <a href="${offer.socialLink}" target="_blank" class="social-link">تواصل معي</a>
+                            <button class="delete-btn" onclick="deleteOffer(${offer.id})">حذف</button>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>`;
+        }
+
+        async function deleteOffer(id) {
+            if (!confirm('هل أنت متأكد؟')) return;
+            try {
+                await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+                loadOffers();
+            } catch (error) {
+                alert('خطأ في الحذف');
+            }
+        }
+
+        init();
+        setInterval(loadOffers, 30000);
+    </script>
+</body>
+</html>
